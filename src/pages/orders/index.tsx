@@ -40,7 +40,7 @@ const OrdersPage = () => {
       <View className="px-4 pt-3 pb-1">
         <ScrollView scrollX className="w-full">
           <Tabs value={active} onValueChange={(v) => setActive(v as OrderStatus | 'all')}>
-            <TabsList className="inline-flex h-11 gap-1 bg-muted px-2 rounded-xl">
+            <TabsList className="inline-flex h-11 gap-1 bg-muted px-2 rounded-sm">
               {STATUS_TABS.map((s) => (
                 <TabsTrigger key={s.id} value={s.id} className="px-3 py-2">
                   <Text className="block text-sm leading-none">{s.name}</Text>
@@ -72,7 +72,7 @@ const OrdersPage = () => {
             {list.map((o) => (
               <View
                 key={o.id}
-                className="rounded-xl border border-border bg-card overflow-hidden"
+                className="rounded-sm border border-border bg-card overflow-hidden"
               >
                 {/* 订单头部 */}
                 <View className="flex items-center justify-between px-4 py-3 border-b border-border">
@@ -102,7 +102,7 @@ const OrdersPage = () => {
                     <ProductImage
                       name={it.name}
                       hint={it.imageHint}
-                      className="w-14 h-14 rounded-lg shrink-0"
+                      className="w-14 h-14 rounded-sm shrink-0"
                     />
                     <View className="flex-1">
                       <Text className="block text-sm font-medium text-foreground leading-snug">

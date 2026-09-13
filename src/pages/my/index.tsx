@@ -125,7 +125,7 @@ const MyPage = () => {
         </Card>
 
         {/* 客服联系方式 */}
-        <View className="mt-5 rounded-xl border border-border bg-card p-4 flex items-center gap-3">
+        <View className="mt-5 rounded-sm border border-border bg-card p-4 flex items-center gap-3">
           <View className="flex items-center justify-center w-10 h-10 rounded-full bg-accent">
             <Phone size={18} color="#7a8b6f" />
           </View>

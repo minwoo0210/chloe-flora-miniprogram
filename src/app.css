@@ -11,25 +11,25 @@ page {
 :root,
 page,
 root-portal {
-  --background: #fbf6ee;
-  --foreground: #2b2118;
+  --background: #f7f3ed;
+  --foreground: #33302b;
   --card: #ffffff;
-  --card-foreground: #2b2118;
+  --card-foreground: #33302b;
   --popover: #ffffff;
-  --popover-foreground: #2b2118;
+  --popover-foreground: #33302b;
   --primary: #e8830c;
   --primary-foreground: #ffffff;
-  --secondary: #c9a063;
-  --secondary-foreground: #ffffff;
-  --muted: #f3ebdf;
-  --muted-foreground: #99897a;
-  --accent: #f6eedf;
-  --accent-foreground: #2b2118;
+  --secondary: #ece7de;
+  --secondary-foreground: #33302b;
+  --muted: #f0ece5;
+  --muted-foreground: #a29b90;
+  --accent: #f2ede5;
+  --accent-foreground: #33302b;
   --destructive: #c0392b;
   --destructive-foreground: #ffffff;
-  --border: #e9dfce;
-  --input: #e9dfce;
-  --ring: #c9a063;
+  --border: #e7e2d8;
+  --input: #e7e2d8;
+  --ring: #e8830c;
   --sidebar: #ffffff;
   --sidebar-foreground: #2b2118;
   --sidebar-primary: #2b2118;
@@ -38,7 +38,7 @@ root-portal {
   --sidebar-accent-foreground: #2b2118;
   --sidebar-border: #e9dfce;
   --sidebar-ring: #c9a063;
-  --surface: #fbf6ee;
+  --surface: #f7f3ed;
   --code: var(--surface);
   --code-highlight: lab(95.36% 0 0);
   --code-number: lab(48.96% 0 0);

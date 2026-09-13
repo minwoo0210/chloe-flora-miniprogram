@@ -83,7 +83,7 @@ const AddressPage = () => {
             {addresses.map((a) => (
               <View
                 key={a.id}
-                className="rounded-xl border border-border bg-card p-4"
+                className="rounded-sm border border-border bg-card p-4"
               >
                 <View className="flex flex-row items-center gap-2">
                   <Text className="block text-sm font-medium text-foreground">
@@ -173,7 +173,7 @@ const AddressPage = () => {
                   />
                 </View>
               </View>
-              <View className="flex flex-row items-center justify-between bg-accent rounded-xl px-4 py-3">
+              <View className="flex flex-row items-center justify-between bg-accent rounded-sm px-4 py-3">
                 <Text className="block text-sm text-foreground">设为默认地址</Text>
                 <Switch
                   checked={form.isDefault}

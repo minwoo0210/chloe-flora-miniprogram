@@ -1,66 +1,35 @@
-# 花屿花艺工作室 · 设计指南 (design_guidelines.md)
+# 花屿花艺工作室 — 爱马仕风格设计指南
 
-高端花艺商城小程序，风格参考爱马仕：**爱马仕橙 + 奶油米白 + 鎏金点缀**，留白充足、排版大气、字体优雅。
+符合《爱马仕风格参考.md》规范：米白/米灰底 + 爱马仕橙强调 + 深灰/浅灰文字层级，奢华简约、克制优雅。
 
-## 1. 配色方案（Tailwind 语义类）
-| 用途 | 语义 Token | 色值 | Tailwind 类 |
-| --- | --- | --- | --- |
-| 页面底色 | background | `#FBF6EE` 奶油 | `bg-background` |
-| 正文文字 | foreground | `#2B2118` 浓咖啡 | `text-foreground` |
-| 主按钮/主色 | primary | `#E8830C` 爱马仕橙 | `bg-primary text-primary-foreground` |
-| 鎏金点缀 | secondary | `#C9A063` | `bg-secondary text-secondary-foreground` / `text-secondary` |
-| 弱化文字 | muted-foreground | `#99897A` | `text-muted-foreground` |
-| 浅底/标签底 | muted / accent | `#F3EBDF` / `#F6EEDF` | `bg-muted` / `bg-accent` |
-| 卡片面 | card | `#FFFFFF` | `bg-card text-card-foreground` |
-| 描边/分隔线 | border / input | `#E9DFCE` | `border` / `border-border` |
-| 聚焦环 | ring | `#C9A063` | `ring-ring` |
-| 危险操作 | destructive | `#C0392B` | `bg-destructive text-destructive-foreground` |
+## 1. 配色方案（对应 app.css 变量）
+- **背景** `bg-background`(#f7f3ed) 米白米灰，大面积低饱和，避免高饱和干扰商品
+- **强调色** `bg-primary / text-primary`(#e8830c) 爱马仕橙——**仅用于底部 Tab 选中态与核心操作/主按钮**
+- **文字层级**
+  - 一级标题/价格：`text-foreground`(#33302b 深灰)
+  - 二级正文：`text-foreground` / 价格主色
+  - 三级辅助：`text-muted-foreground`(#a29b90 浅灰)
+- **芯片/次级容器** `bg-secondary`(#ece7de) / `bg-muted`(#f0ece5)
+- **描边** `border`(#e7e2d8) 细线
 
-- 禁止使用指南外的颜色类；少量品牌点缀可用既定语义类。
-- 图片一律使用风格化占位块（奶油底 + 细描边 + 居中图标 + "建议尺寸"文字），不使用占位符服务/示例域名/虚构路径/本地打包大图。
+## 2. 布局与组件选型
+- 通用组件统一来自 `@/components/ui/*`（Button/Card/Badge/Tabs/Input/Textarea/Switch/RadioGroup）。页面禁止用 `View/Text` 手搓这些通用组件。
+- 业务卡片复用 `@/components/product-card.tsx`；占位图复用 `@/components/product-image.tsx`。
+- **商品展示**：2 列网格、**无边框**卡片，依托背景自然区分（图片块用 `bg-muted`，无 border）。
+- **圆角**：极小圆角（`rounded-sm` 为主），避免过度圆润；圆形徽标/头像保留 `rounded-full`。
+- **间距**：宽松留白，元素不密集。
 
-## 2. 字体与排版
-- 标题：字重大、`tracking-wide`，衬线气质，营造杂志封面感
-- 正文：清晰、字距适中；价格与主按钮是视觉锚点
-- 垂直文本一律加 `block`（小程序 Text 换行）
+## 3. 页面结构
+- **底部 Tab（5 个）**：首页/商品/购物袋/服务/我的；选中态橙色图标+文字，未选中浅灰。
+- **首页**：顶部固定品牌 logo → 首屏品牌主题全屏海报（深色底+橙色点缀+标语）→ 各品类主题宣传区（宣传图+文案）→ 对应 2 列商品网格 → 服务 CTA。
+- **商品页**：顶部 logo + 品类横向滚动导航 → 品类主题大图 → 子分类/标签筛选 → 2 列无边框网格。
+- **商品详情**：返回+logo → 轮播图 → 名称/售价 → 选项(规格/数量) → 参数 → 服务说明 → 关联推荐 → 底部固定「加入购物袋」+「立即购买」。
 
-## 3. 间距与容器系统
-- 页面边距：`px-5` / `px-6`
-- 区块间隔：`mb-6` / `space-y-5`
-- 卡片内边距：`p-4` / `p-5`
-- 容器：`bg-card` + `rounded-xl` + 细描边 `border`（圆角克制，不超 rounded-lg 档位则更沉稳）
-- 圆角档位：`rounded-md` / `rounded-lg` / `rounded-xl`，禁过度圆形
+## 4. 排版
+- 无衬线简洁字体，三级体系：大(品类标题 text-xl/2xl)、中(商品名 text-sm/base)、小(辅助 text-xs)。
+- 文字左对齐，字距 `tracking-wide`，留白充足，视觉节奏舒缓。
+- 价格用 `text-foreground` 深灰粗体（不用橙色）。
 
-## 4. 组件选型（强制）
-通用 UI 一律优先 `@/components/ui/*`，禁止 `View/Text` 手搓：
-- 按钮：`Button`（primary 主操作 / outline 次操作 / ghost）
-- 卡片：`Card + CardContent`
-- 标签/角标：`Badge`
-- 分类/分段：`Tabs`
-- 数量步进：`ButtonGroup` + `Button`
-- 输入：`Input`（包 `View`）、`Textarea`（包 `View`）
-- 弹层/确认：`Dialog` / `AlertDialog`
-- 加载态：`Skeleton`
-- 空状态：组件内用 `bg-muted` + 图标 + 文案自制小型空状态块
-- 图标：`lucide-react-taro`（统一用 `color/size/strokeWidth` 设色，勿用 `className` 改色）
-
-仅 TabBar 图标为本地 PNG（`src/assets/tabbar/`），其余无本地图片。
-
-## 5. 导航结构
-- TabBar：首页 / 花礼(分类) / 购物车 / 我的
-- 路由：
-  - `pages/index/index` 首页
-  - `pages/category/index` 花礼分类/列表
-  - `pages/product/index?id=` 商品详情
-  - `pages/cart/index` 购物车
-  - `pages/checkout/index` 结算下单
-  - `pages/orders/index` 我的订单
-  - `pages/address/index` 地址管理
-  - `pages/favorites/index` 我的收藏
-  - `pages/my/index` 我的
-- TabBar 页面跳转用 `Taro.switchTab`，普通页面用 `Taro.navigateTo`
-
-## 6. 跨端/性能约束
-- 全用 Tailwind，避免硬编码 `px`；fixed+flex 用 inline style；bottom 固定避开 TabBar(`bottom: 46`)
-- 数据用 Taro Storage（zustand store 持久化），无后端依赖，保证可运行可预览
-- 图片占位块不得嵌套真实网络图
+## 5. 禁忌
+- 禁止大圆角、彩色渐变卡片、纯黑文字、高饱和背景。
+- 禁止价格使用橙色（橙色仅用于选中态与主按钮）。

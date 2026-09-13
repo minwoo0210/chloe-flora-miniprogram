@@ -74,7 +74,7 @@ const CheckoutPage = () => {
 
         {defaultAddr ? (
           <View
-            className="mt-3 flex flex-row items-center gap-3 p-4 rounded-xl border border-border bg-card"
+            className="mt-3 flex flex-row items-center gap-3 p-4 rounded-sm border border-border bg-card"
             onClick={goAddress}
           >
             <View className="flex items-center justify-center w-10 h-10 rounded-full bg-accent">
@@ -160,12 +160,12 @@ const CheckoutPage = () => {
             return (
               <View
                 key={p.id}
-                className="flex flex-row gap-3 items-center p-3 rounded-xl border border-border bg-card"
+                className="flex flex-row gap-3 items-center p-3 rounded-sm border border-border bg-card"
               >
                 <ProductImage
                   name={p.name}
                   hint={p.imageHint}
-                  className="w-16 h-16 rounded-lg shrink-0"
+                  className="w-16 h-16 rounded-sm shrink-0"
                 />
                 <View className="flex-1">
                   <Text className="block text-sm font-medium text-foreground leading-snug">
@@ -183,7 +183,7 @@ const CheckoutPage = () => {
           })}
         </View>
 
-        <View className="mt-6 flex items-center justify-between rounded-xl bg-accent px-4 py-3">
+        <View className="mt-6 flex items-center justify-between rounded-sm bg-accent px-4 py-3">
           <Text className="block text-sm text-foreground">应付金额</Text>
           <Text className="block text-xl font-bold text-primary">
             ¥{formatPrice(cartTotal)}
