@@ -1,5 +1,5 @@
 /**
- * 花屿花艺工作室 - 商品目录 / 分类 / 服务 / Banner 静态数据
+ * Chloe Flora - 商品目录 / 分类 / 服务 / Banner 静态数据
  * 说明：图片位统一使用风格化占位块，imageHint 为建议图片尺寸（预留真实图片上传位）。
  */
 
@@ -279,8 +279,8 @@ export interface Banner {
 export const BANNERS: Banner[] = [
   {
     id: 'b1',
-    title: '花屿花艺工作室',
-    subtitle: 'HERMES ORANGE · 高端花艺定制品牌',
+    title: 'Chloe Flora',
+    subtitle: 'CHLOE FLORA · 高端花艺定制品牌',
     imageHint: '750 × 320',
     tint: 'orange'
   },

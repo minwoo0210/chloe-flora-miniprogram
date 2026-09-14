@@ -14,7 +14,7 @@ export default defineAppConfig({
   window: {
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#f7f3ed',
-    navigationBarTitleText: '花屿花艺工作室',
+    navigationBarTitleText: 'Chloe Flora',
     navigationBarTextStyle: 'black',
     backgroundColor: '#f7f3ed'
   },

@@ -47,7 +47,7 @@ const MyPage = () => {
             <View className="flex-1">
               <View className="flex items-center gap-2">
                 <Text className="block text-lg font-semibold text-foreground">
-                  花屿会员
+                  Chloe Flora 会员
                 </Text>
                 <Crown size={16} color="#c9a063" />
               </View>
@@ -144,7 +144,7 @@ const MyPage = () => {
 
         <View className="mt-8 flex flex-col items-center">
           <Text className="block text-xs tracking-[0.4em] text-secondary">
-            花屿花艺工作室
+            Chloe Flora
           </Text>
           <Text className="block mt-1 text-xs text-muted-foreground">
             FLORIST · BOUTIQUE · EST. 2016

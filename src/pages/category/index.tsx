@@ -83,7 +83,7 @@ const CategoryPage = () => {
         {/* 子分类/标签筛选 */}
         <View className="flex items-center justify-between px-5 mt-6">
           <Text className="block text-xs text-muted-foreground tracking-[0.2em]">
-            {activeCat ? CATEGORY_NOTE[activeCat.id] : '花屿花艺 · 花礼陈列'}
+            {activeCat ? CATEGORY_NOTE[activeCat.id] : 'Chloe Flora · 花礼陈列'}
           </Text>
           <Text className="block text-xs text-muted-foreground">共 {list.length} 件</Text>
         </View>

@@ -34,7 +34,7 @@ const IndexPage = () => {
               <Flower size={16} color="#ffffff" strokeWidth={1.8} />
             </View>
             <Text className="text-base font-semibold text-foreground tracking-widest">
-              花屿花艺
+              Chloe Flora
             </Text>
           </View>
           <View className="relative" onClick={() => goTab('/pages/cart/index')}>
@@ -62,10 +62,10 @@ const IndexPage = () => {
         <View className="relative flex flex-col items-start">
           <View className="w-10 h-1 bg-primary" />
           <Text className="block mt-5 text-xs tracking-[0.5em] text-background">
-            HERMES ORANGE · FLOWER STUDIO
+            CHLOE FLORA · FLOWER STUDIO
           </Text>
           <Text className="block mt-5 text-4xl font-semibold text-background tracking-[0.35em]">
-            花屿花艺
+            Chloe Flora
           </Text>
           <Text className="block mt-6 text-sm leading-loose text-background opacity-80">
             {SLOGAN.title}
