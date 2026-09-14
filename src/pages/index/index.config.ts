@@ -1,3 +1,7 @@
 export default typeof definePageConfig === 'function'
-  ? definePageConfig({ navigationBarTitleText: 'Chloe Flora' })
-  : { navigationBarTitleText: 'Chloe Flora' }
+  ? definePageConfig({
+      navigationStyle: 'custom',
+      navigationBarTitleText: 'Chloe Flora',
+      enablePullDownRefresh: false
+    })
+  : { navigationStyle: 'custom', navigationBarTitleText: 'Chloe Flora' }
