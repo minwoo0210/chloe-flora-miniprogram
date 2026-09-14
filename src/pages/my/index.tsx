@@ -143,13 +143,7 @@ const MyPage = () => {
         </View>
 
         <View className="mt-8 flex flex-col items-center">
-          <Text
-            className="block text-sm text-muted-foreground"
-            style={{
-              fontFamily: "'Playfair Display','Didot','Bodoni MT','Cormorant Garamond','Songti SC','STSong','SimSun',serif",
-              letterSpacing: '0.15em',
-            }}
-          >
+          <Text className="block text-xs tracking-[0.4em] text-secondary">
             Chloe Flora
           </Text>
           <Text className="block mt-1 text-xs text-muted-foreground">
