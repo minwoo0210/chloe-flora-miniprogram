@@ -1,13 +1,20 @@
-import { View, Text } from '@tarojs/components'
+import { View, Text, Swiper, SwiperItem, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { Flower, ShoppingBag, ChevronDown, ChevronRight } from 'lucide-react-taro'
+import { Flower, ShoppingBag, ChevronRight } from 'lucide-react-taro'
 import ProductImage from '@/components/product-image'
 import ProductCard from '@/components/product-card'
-import { CATEGORIES, PRODUCTS, SERVICES, SLOGAN } from '@/data/catalog'
+import { CATEGORIES, PRODUCTS, SERVICES, SLOGAN, HERO } from '@/data/catalog'
 import { useStore } from '@/store/use-store'
 
 const goTab = (url: string) => Taro.switchTab({ url })
 const goProduct = (id: string) => Taro.navigateTo({ url: `/pages/product/index?id=${id}` })
+
+/** Hero 大图轮播的品牌色调 */
+const HERO_TONE: Record<string, { bg: string; fg: string; glyph: string }> = {
+  deep: { bg: '#33302b', fg: '#fcf7f1', glyph: '#e8830c' },
+  orange: { bg: '#d97a10', fg: '#fffdf8', glyph: '#fff6e8' },
+  sage: { bg: '#7b8b6f', fg: '#fffdf8', glyph: '#f4efe6' }
+}
 
 /** 品类主题视觉底稿：文案 + 暖色品牌意象 */
 const CATEGORY_NOTE: Record<string, string> = {
@@ -23,69 +30,87 @@ const IndexPage = () => {
 
   return (
     <View className="min-h-full bg-background">
-      {/* 顶部固定品牌栏 */}
-      <View
-        style={{ position: 'sticky', top: 0, zIndex: 50 }}
-        className="bg-background border-b border-border"
-      >
-        <View className="flex items-center justify-between px-5 h-14">
-          <View className="flex items-center gap-2">
-            <View className="w-7 h-7 rounded-sm bg-primary flex items-center justify-center">
-              <Flower size={16} color="#ffffff" strokeWidth={1.8} />
-            </View>
-            <Text className="text-base font-semibold text-foreground tracking-widest">
-              Chloe Flora
-            </Text>
-          </View>
-          <View className="relative" onClick={() => goTab('/pages/cart/index')}>
-            <ShoppingBag size={20} color="#33302b" strokeWidth={1.6} />
-            {cartCount > 0 ? (
-              <View className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-primary flex items-center justify-center">
-                <Text className="text-xs leading-none text-white">{cartCount}</Text>
-              </View>
-            ) : null}
-          </View>
-        </View>
-      </View>
-
-      {/* 首屏品牌主题海报 */}
-      <View
-        className="bg-foreground flex flex-col justify-center px-8"
-        style={{ height: '82vh', position: 'relative', overflow: 'hidden' }}
-      >
-        <View
-          className="flex items-center justify-center"
-          style={{ position: 'absolute', inset: 0, opacity: 0.16 }}
+      {/* 顶部全屏大图轮播 Hero：整张大图覆盖最顶部，品牌字以透明质感叠加其上 */}
+      <View className="relative w-full" style={{ height: '84vh' }}>
+        <Swiper
+          className="w-full h-full"
+          autoplay
+          circular
+          interval={4500}
+          duration={650}
+          indicatorDots
+          indicatorColor="rgba(255,255,255,0.35)"
+          indicatorActiveColor="#e8830c"
         >
-          <Flower size={340} color="#e8830c" strokeWidth={0.6} />
+          {HERO.map((h, i) => (
+            <SwiperItem key={i}>
+              {h.src ? (
+                <Image className="w-full h-full" src={h.src} mode="aspectFill" />
+              ) : (
+                <View
+                  className="relative w-full h-full flex items-end overflow-hidden"
+                  style={{ backgroundColor: HERO_TONE[h.tone].bg }}
+                >
+                  <View
+                    className="absolute left-1/2 top-1/2 flex items-center justify-center"
+                    style={{ transform: 'translate(-50%,-50%)', opacity: 0.16 }}
+                  >
+                    <Flower size={420} color={HERO_TONE[h.tone].glyph} strokeWidth={0.7} />
+                  </View>
+                  <View className="relative px-8 pb-14">
+                    <Text className="block text-xs tracking-[0.4em]" style={{ color: HERO_TONE[h.tone].fg }}>
+                      {h.eyebrow}
+                    </Text>
+                    <Text className="block mt-3 text-3xl font-semibold tracking-[0.25em]" style={{ color: HERO_TONE[h.tone].fg }}>
+                      {h.title}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </SwiperItem>
+          ))}
+        </Swiper>
+
+        {/* 购物袋入口（浮于大图右上角） */}
+        <View
+          className="absolute top-4 right-5 z-10 flex items-center justify-center w-9 h-9"
+          style={{ backgroundColor: 'rgba(51,48,43,0.35)', borderRadius: 99 }}
+          onClick={() => goTab('/pages/cart/index')}
+        >
+          <ShoppingBag size={19} color="#ffffff" />
+          {cartCount > 0 ? (
+            <View className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-primary flex items-center justify-center">
+              <Text className="text-xs leading-none text-white">{cartCount}</Text>
+            </View>
+          ) : null}
         </View>
-        <View className="relative flex flex-col items-start">
-          <View className="w-10 h-1 bg-primary" />
-          <Text className="block mt-5 text-xs tracking-[0.5em] text-background">
+
+        {/* 透明品牌字叠加层（悬于大图之上，字体半透明如水印） */}
+        <View
+          className="absolute inset-0 flex flex-col items-center justify-center px-10"
+          style={{ pointerEvents: 'none' }}
+        >
+          <Text
+            className="block text-sm tracking-[0.5em] text-center"
+            style={{ color: 'rgba(252,247,241,0.5)', textShadow: '0 1px 16px rgba(0,0,0,0.28)' }}
+          >
             CHLOE FLORA · FLOWER STUDIO
           </Text>
-          <Text className="block mt-5 text-4xl font-semibold text-background tracking-[0.35em]">
+          <Text
+            className="block mt-3 text-5xl font-semibold tracking-[0.3em] text-center"
+            style={{ color: 'rgba(252,247,241,0.88)', textShadow: '0 2px 28px rgba(0,0,0,0.35)' }}
+          >
             Chloe Flora
           </Text>
-          <Text className="block mt-6 text-sm leading-loose text-background opacity-80">
+          <Text
+            className="block mt-7 text-sm leading-7 text-center"
+            style={{ color: 'rgba(252,247,241,0.7)', textShadow: '0 1px 12px rgba(0,0,0,0.3)' }}
+          >
             {SLOGAN.title}
             {'\n'}
             {SLOGAN.subtitle}
           </Text>
-          <View className="flex items-center gap-2 mt-12 text-background opacity-70">
-            <Text className="text-xs tracking-[0.3em]">向下滑动探索</Text>
-            <ChevronDown size={14} color="#ffffff" />
-          </View>
         </View>
-      </View>
-
-      {/* 品牌宣言 */}
-      <View className="px-8 pt-14 pb-4">
-        <Text className="block text-center text-sm text-muted-foreground leading-7 tracking-wider">
-          回归花艺的美学本质
-          {'\n'}
-          以克制与留白，重塑每一束被珍视的仪式感
-        </Text>
       </View>
 
       {/* 各品类主题宣传区 ⇒ 商品网格 */}

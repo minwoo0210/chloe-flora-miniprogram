@@ -305,6 +305,43 @@ export const SLOGAN = {
   subtitle: '做一束被珍视的仪式感'
 }
 
+export interface HeroSlide {
+  /** 真实大片（照片 / GIF）URL；留空则使用品牌色占位底图 */
+  src?: string
+  tone: 'deep' | 'orange' | 'sage'
+  eyebrow: string
+  title: string
+  sub: string
+}
+
+/**
+ * 首页顶部全屏大图轮播
+ * 支持放入品牌主视觉照片或动图（GIF），自动轮播 + 手动翻页
+ */
+export const HERO: HeroSlide[] = [
+  {
+    src: '',
+    tone: 'deep',
+    eyebrow: 'SUMMER 2025 COLLECTION',
+    title: '盛夏花礼',
+    sub: '以爱马仕橙开启高定花艺'
+  },
+  {
+    src: '',
+    tone: 'orange',
+    eyebrow: 'WEDDING & EVENT',
+    title: '婚礼花艺布置',
+    sub: '为重要时刻定制高级仪式感'
+  },
+  {
+    src: '',
+    tone: 'sage',
+    eyebrow: 'EVERLASTING FLOWERS',
+    title: '永生花礼盒',
+    sub: '恒久保存的爱意'
+  }
+]
+
 /** 将价格格式化为 ¥xxx.xx */
 export function formatPrice(price: number): string {
   return price.toFixed(price % 1 === 0 ? 0 : 2)
