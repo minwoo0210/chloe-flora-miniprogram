@@ -19,7 +19,16 @@ const ServicesPage = () => {
           <View className="w-7 h-7 rounded-sm bg-primary flex items-center justify-center">
             <Flower size={15} color="#ffffff" strokeWidth={1.8} />
           </View>
-          <Text className="text-base font-semibold text-foreground tracking-widest">Chloe Flora</Text>
+          <Text
+            className="text-lg text-foreground"
+            style={{
+              fontFamily: "'Playfair Display','Didot','Bodoni MT','Cormorant Garamond','Songti SC','STSong','SimSun',serif",
+              fontWeight: 600,
+              letterSpacing: '0.1em',
+            }}
+          >
+            Chloe Flora
+          </Text>
         </View>
         <Text className="block mt-3 text-lg text-foreground tracking-wide">{SLOGAN.title}</Text>
         <Text className="block mt-2 text-xs text-muted-foreground tracking-[0.3em]">

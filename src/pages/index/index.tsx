@@ -64,8 +64,13 @@ const IndexPage = () => {
         <View className="flex flex-col items-center justify-center" style={{ height: `${HEADER_BODY + 12}px` }}>
           <Flower size={18} color={scrolled ? '#e8830c' : '#ffffff'} strokeWidth={1.6} />
           <Text
-            className="mt-1 text-base font-medium tracking-[0.18em] text-center"
-            style={{ color: scrolled ? '#33302b' : '#ffffff' }}
+            className="mt-1 text-lg text-center"
+            style={{
+              color: scrolled ? '#33302b' : '#ffffff',
+              fontFamily: "'Playfair Display','Didot','Bodoni MT','Cormorant Garamond','Songti SC','STSong','SimSun',serif",
+              fontWeight: 500,
+              letterSpacing: '0.1em',
+            }}
           >
             Chloe Flora
           </Text>

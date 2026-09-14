@@ -60,7 +60,16 @@ const ProductPage = () => {
           <View className="w-6 h-6 rounded-sm bg-primary flex items-center justify-center">
             <Flower size={13} color="#ffffff" strokeWidth={1.8} />
           </View>
-          <Text className="text-sm font-medium text-foreground tracking-widest">Chloe Flora</Text>
+          <Text
+            className="text-lg text-foreground"
+            style={{
+              fontFamily: "'Playfair Display','Didot','Bodoni MT','Cormorant Garamond','Songti SC','STSong','SimSun',serif",
+              fontWeight: 600,
+              letterSpacing: '0.1em',
+            }}
+          >
+            Chloe Flora
+          </Text>
         </View>
         <View className="w-8" />
       </View>
