@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { View, Text, Swiper, SwiperItem, Image } from '@tarojs/components'
 import Taro, { usePageScroll } from '@tarojs/taro'
-import { Flower, ShoppingBag, ChevronRight, ChevronDown } from 'lucide-react-taro'
+import { Flower, ChevronRight, ChevronDown } from 'lucide-react-taro'
 import ProductImage from '@/components/product-image'
 import ProductCard from '@/components/product-card'
 import { CATEGORIES, PRODUCTS, SERVICES, SLOGAN, HERO } from '@/data/catalog'
-import { useStore } from '@/store/use-store'
+
 
 const goTab = (url: string) => Taro.switchTab({ url })
 const goProduct = (id: string) => Taro.navigateTo({ url: `/pages/product/index?id=${id}` })
@@ -33,19 +33,8 @@ const env = Taro.getEnv()
 const isMini = env === Taro.ENV_TYPE.WEAPP || env === Taro.ENV_TYPE.TT
 const HEADER_BODY = 44
 const headerHeight = statusBarHeight + HEADER_BODY
-// 购物袋按钮需避开右上角微信/抖音胶囊
-let capsuleRight = 16
-if (isMini && (Taro as unknown as { getMenuButtonBoundingClientRect?: () => { width: number; right: number; screenWidth: number } }).getMenuButtonBoundingClientRect) {
-  try {
-    const rect = Taro.getMenuButtonBoundingClientRect()
-    capsuleRight = sysInfo.windowWidth - rect.right + 12
-  } catch {
-    capsuleRight = 16
-  }
-}
 
 const IndexPage = () => {
-  const cartCount = useStore((s) => s.cartCount())
   // 是否已经滚出首屏海报：越过海报后顶部栏才浮出米白背景
   const [scrolled, setScrolled] = useState(false)
   const heroHeight = sysInfo.windowHeight
@@ -58,43 +47,28 @@ const IndexPage = () => {
 
   return (
     <View className="min-h-full bg-background">
-      {/* ============ 顶部悬浮品牌栏：海报上透明(白字) / 滚出后米白底(深字) ============ */}
+      {/* ============ 顶部居中品牌字：海报上透明(白字) / 滚出后米白底(深字) ============ */}
       <View
-        className="fixed left-0 right-0 top-0 z-50"
         style={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          top: 0,
+          zIndex: 50,
           paddingTop: `${statusBarHeight}px`,
           backgroundColor: scrolled ? '#f7f3ed' : 'transparent',
           boxShadow: scrolled ? '0 1px 0 rgba(160,153,141,0.18)' : 'none',
           transition: 'background-color 0.3s ease'
         }}
       >
-        <View
-          className="relative flex items-center justify-between"
-          style={{ height: `${HEADER_BODY}px`, paddingLeft: isMini ? '16px' : '20px', paddingRight: `${capsuleRight}px` }}
-        >
-          <View className="flex items-center gap-2">
-            <Flower size={22} color={scrolled ? '#e8830c' : '#ffffff'} strokeWidth={1.6} />
-            <Text
-              className="text-base font-medium tracking-[0.28em]"
-              style={{ color: scrolled ? '#33302b' : '#ffffff' }}
-            >
-              CHLOE FLORA
-            </Text>
-          </View>
-
-          <View className="relative" onClick={() => goTab('/pages/cart/index')}>
-            <View
-              className="flex items-center justify-center w-9 h-9"
-              style={{ backgroundColor: scrolled ? 'transparent' : 'rgba(51,48,43,0.28)', borderRadius: 99 }}
-            >
-              <ShoppingBag size={20} color={scrolled ? '#33302b' : '#ffffff'} />
-            </View>
-            {cartCount > 0 ? (
-              <View className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-primary flex items-center justify-center">
-                <Text className="text-xs leading-none text-white">{cartCount}</Text>
-              </View>
-            ) : null}
-          </View>
+        <View className="flex flex-col items-center justify-center" style={{ height: `${HEADER_BODY + 12}px` }}>
+          <Flower size={18} color={scrolled ? '#e8830c' : '#ffffff'} strokeWidth={1.6} />
+          <Text
+            className="mt-1 text-base font-medium tracking-[0.18em] text-center"
+            style={{ color: scrolled ? '#33302b' : '#ffffff' }}
+          >
+            Chloe Flora
+          </Text>
         </View>
       </View>
 
