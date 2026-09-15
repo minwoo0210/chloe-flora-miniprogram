@@ -8,7 +8,8 @@ import {
   Phone,
   ChevronRight,
   MessageCircle,
-  Crown
+  Crown,
+  LayoutDashboard
 } from 'lucide-react-taro'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -32,7 +33,8 @@ const MyPage = () => {
     { icon: PackageOpen, label: '我的订单', hint: '查看订单状态', onClick: () => go('/pages/orders/index'), color: '#e8830c' },
     { icon: Heart, label: '我的收藏', hint: `${favorites.length} 件珍藏`, onClick: () => go('/pages/favorites/index'), color: '#c0392b' },
     { icon: MapPin, label: '地址管理', hint: `${addresses.length} 个收货地址`, onClick: () => go('/pages/address/index'), color: '#c9a063' },
-    { icon: MessageCircle, label: '联系客服', hint: SERVICE_PHONE, onClick: call, color: '#7a8b6f' }
+    { icon: MessageCircle, label: '联系客服', hint: SERVICE_PHONE, onClick: call, color: '#7a8b6f' },
+    { icon: LayoutDashboard, label: '数据总览', hint: '查看后端实时数据', onClick: () => go('/pages/admin/index'), color: '#7a8b6f' }
   ]
 
   return (

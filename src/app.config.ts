@@ -9,7 +9,8 @@ export default defineAppConfig({
     'pages/checkout/index',
     'pages/orders/index',
     'pages/address/index',
-    'pages/favorites/index'
+    'pages/favorites/index',
+    'pages/admin/index'
   ],
   window: {
     backgroundTextStyle: 'light',

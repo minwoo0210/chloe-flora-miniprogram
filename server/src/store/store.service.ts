@@ -419,4 +419,68 @@ export class StoreService {
       })),
     }));
   }
+
+  /* ---------- 管理端：全量数据 ---------- */
+  async adminOverview() {
+    const service = this.db();
+    const [p, c, o] = await Promise.all([
+      service.from('products').select('id', { count: 'exact', head: true }),
+      service.from('categories').select('id', { count: 'exact', head: true }),
+      service.from('orders').select('total'),
+    ]);
+    const err = p.error ?? c.error ?? o.error;
+    if (err) throw new Error(`统计失败: ${err.message}`);
+    const orderTotal = (o.data ?? []).reduce(
+      (s: number, r: any) => s + toNumber(r.total),
+      0,
+    );
+    return {
+      productCount: p.count ?? 0,
+      categoryCount: c.count ?? 0,
+      orderCount: ((o.data ?? []) as unknown[]).length,
+      orderAmount: Math.round(orderTotal),
+    };
+  }
+
+  async listAllOrders() {
+    const { data, error } = await this.db()
+      .from('orders')
+      .select('id, order_no, receiver, phone, address, total, status, remark, created_at, user_key')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (error) throw new Error(`查询全部订单失败: ${error.message}`);
+    const orders = data ?? [];
+    const orderIds = orders.map((o: any) => o.id);
+    const { data: items, error: iError } = orderIds.length
+      ? await this.db()
+          .from('order_items')
+          .select('order_id, product_id, product_name, product_price, qty, image_hint')
+          .in('order_id', orderIds)
+      : { data: [], error: null };
+    if (iError) throw new Error(`查询订单明细失败: ${iError.message}`);
+    const byOrder = new Map<number, any[]>();
+    for (const it of items ?? []) {
+      const arr = byOrder.get(it.order_id) ?? [];
+      arr.push(it);
+      byOrder.set(it.order_id, arr);
+    }
+    return orders.map((o: any) => ({
+      userKey: o.user_key,
+      orderNo: o.order_no,
+      receiver: o.receiver,
+      phone: o.phone,
+      address: o.address,
+      total: toNumber(o.total),
+      status: o.status,
+      remark: o.remark ?? '',
+      createdAt: o.created_at,
+      items: (byOrder.get(o.id) ?? []).map((it: any) => ({
+        productId: it.product_id,
+        name: it.product_name,
+        price: toNumber(it.product_price),
+        qty: it.qty,
+        imageHint: it.image_hint ?? '750 × 900',
+      })),
+    }));
+  }
 }
