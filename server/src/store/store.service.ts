@@ -483,4 +483,62 @@ export class StoreService {
       })),
     }));
   }
+
+  /* ---------------- 管理端：商品 CRUD ---------------- */
+  async createProduct(input: any) {
+    const { name, categoryId, price, subtitle, originalPrice, description, imageHint, tags, isFeatured, isHot } =
+      input ?? {};
+    if (!name || !categoryId || price == null) throw new BadRequestException('名称、分类与价格均为必填');
+    const { count } = await this.db()
+      .from('products')
+      .select('id', { count: 'exact', head: true })
+      .eq('category_id', categoryId);
+    const { data, error } = await this.db()
+      .from('products')
+      .insert({
+        category_id: Number(categoryId),
+        name,
+        subtitle: subtitle ?? '',
+        price: Number(price),
+        original_price: originalPrice != null ? Number(originalPrice) : null,
+        description: description ?? '',
+        image_hint: imageHint ?? '750 × 900',
+        tags: Array.isArray(tags) && tags.length ? tags : ['精选'],
+        is_featured: !!isFeatured,
+        is_hot: !!isHot,
+        sort: (count ?? 0) + 1,
+      })
+      .select()
+      .single();
+    if (error) throw new Error(`新增商品失败: ${error.message}`);
+    return this.mapProduct(data as unknown as ProductRow);
+  }
+
+  async updateProduct(id: number, patch: any) {
+    const update: Record<string, unknown> = {};
+    if ('name' in patch) update.name = patch.name;
+    if ('categoryId' in patch) update.category_id = Number(patch.categoryId);
+    if ('subtitle' in patch) update.subtitle = patch.subtitle;
+    if ('price' in patch) update.price = Number(patch.price);
+    if ('originalPrice' in patch)
+      update.original_price = patch.originalPrice != null ? Number(patch.originalPrice) : null;
+    if ('description' in patch) update.description = patch.description;
+    if ('imageHint' in patch) update.image_hint = patch.imageHint;
+    if ('tags' in patch) update.tags = Array.isArray(patch.tags) ? patch.tags : [];
+    if ('isFeatured' in patch) update.is_featured = !!patch.isFeatured;
+    if ('isHot' in patch) update.is_hot = !!patch.isHot;
+    if (!Object.keys(update).length) throw new BadRequestException('没有可更新的字段');
+    const exist = await this.db().from('products').select('id').eq('id', id).maybeSingle();
+    if (exist.error) throw new Error(`查询商品失败: ${exist.error.message}`);
+    if (!exist.data) throw new NotFoundException('商品不存在');
+    const { data, error } = await this.db().from('products').update(update).eq('id', id).select().single();
+    if (error) throw new Error(`更新失败: ${error.message}`);
+    return this.mapProduct(data as unknown as ProductRow);
+  }
+
+  async deleteProduct(id: number) {
+    const { error } = await this.db().from('products').delete().eq('id', id);
+    if (error) throw new Error(`删除失败: ${error.message}`);
+    return { id };
+  }
 }
