@@ -33,7 +33,7 @@ export const CATEGORIES: Category[] = [
   { id: 'event', name: '活动布置' }
 ]
 
-export const PRODUCTS: Product[] = [
+const PRODUCTS_BASE: Product[] = [
   // ---- 鲜花 ----
   {
     id: 'p1',
@@ -228,6 +228,32 @@ export const PRODUCTS: Product[] = [
     tags: ['精品']
   }
 ]
+
+/* 每品类扩展为 9 个商品：第 1 个为首页全宽主推，其余 8 个以 2×2 分页（每页 4 个、共 2 页）轮播展示 */
+const VARIANTS = ['经典装', '轻奢礼盒', '臻藏套装'] as const
+
+function expandCategory(base: Product[]): Product[] {
+  const list: Product[] = []
+  for (let i = 0; i < 9; i++) {
+    const src = base[i % base.length]
+    list.push(
+      i < base.length
+        ? src
+        : {
+            ...src,
+            id: `${src.id}-v${i}`,
+            name: `${src.name} · ${VARIANTS[(i - base.length) % VARIANTS.length]}`,
+            price: Math.round(src.price + (i % VARIANTS.length) * (src.price > 1000 ? 420 : 66)),
+            originalPrice: src.originalPrice,
+          },
+    )
+  }
+  return list
+}
+
+export const PRODUCTS: Product[] = CATEGORIES.flatMap((cat) =>
+  expandCategory(PRODUCTS_BASE.filter((p) => p.categoryId === cat.id)),
+)
 
 export interface Service {
   id: string

@@ -4,7 +4,7 @@ import Taro, { usePageScroll } from '@tarojs/taro'
 import { Flower, ChevronRight, ChevronDown } from 'lucide-react-taro'
 import ProductImage from '@/components/product-image'
 import ProductCard from '@/components/product-card'
-import { CATEGORIES, PRODUCTS, SERVICES, SLOGAN, HERO } from '@/data/catalog'
+import { CATEGORIES, PRODUCTS, SERVICES, SLOGAN, HERO, type Product, formatPrice } from '@/data/catalog'
 
 
 const goTab = (url: string) => Taro.switchTab({ url })
@@ -135,8 +135,12 @@ const IndexPage = () => {
 
       {/* ============ 各品类主题宣传区 ⇒ 商品网格（海报结束后开始呈现米白背景） ============ */}
       {CATEGORIES.map((c) => {
-        const items = PRODUCTS.filter((p) => p.categoryId === c.id).slice(0, 4)
+        const items = PRODUCTS.filter((p) => p.categoryId === c.id)
         if (!items.length) return null
+        const featured = items[0]
+        const rest = items.slice(1, 9)
+        const pages: Product[][] = []
+        for (let i = 0; i < rest.length; i += 4) pages.push(rest.slice(i, i + 4))
         return (
           <View key={c.id} className="pt-14 pb-2">
             <View className="flex items-end justify-between px-5">
@@ -157,22 +161,59 @@ const IndexPage = () => {
               </View>
             </View>
 
-            {/* 品类主题宣传大图（场景化宣传位） */}
-            <View className="px-5 mt-5">
+            {/* 品类第 1 个商品：全宽主推图（与页面等宽） */}
+            <View className="relative w-full mt-5" onClick={() => goProduct(featured.id)}>
               <ProductImage
-                name={`${c.name} · 主题视觉`}
-                hint="750 × 420"
+                name={featured.name}
+                hint={featured.imageHint}
                 tone="gold"
-                className="w-full aspect-[5/3]"
+                className="w-full aspect-[3/4]"
               />
+              <View
+                className="absolute inset-x-0 bottom-0 px-5 pt-16 pb-6"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(to top, rgba(20,16,12,0.72) 0%, rgba(20,16,12,0) 100%)',
+                }}
+              >
+                <Text className="block text-xs tracking-[0.3em] text-white opacity-80">
+                  {CATEGORY_NOTE[c.id]} · 主推
+                </Text>
+                <Text className="block mt-2 text-xl font-medium text-white tracking-wide">
+                  {featured.name}
+                </Text>
+                <View className="flex items-baseline gap-2 mt-2">
+                  <Text className="text-lg font-semibold text-white">
+                    ¥{formatPrice(featured.price)}
+                  </Text>
+                  {featured.originalPrice ? (
+                    <Text className="text-xs text-white opacity-70 line-through">
+                      ¥{formatPrice(featured.originalPrice)}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
             </View>
 
-            {/* 2 列无边框商品网格 */}
-            <View className="grid grid-cols-2 gap-x-5 gap-y-8 px-5 mt-6">
-              {items.map((p) => (
-                <ProductCard key={p.id} p={p} onTap={() => goProduct(p.id)} />
+            {/* 2×2 分页商品网格：每页 4 个，可左右翻页 */}
+            <Swiper
+              className="mt-6"
+              style={{ height: `${Math.round(((sysInfo.windowWidth - 60) / 2) * 1.3333 + 100) * 2 + 32}px` }}
+              indicatorDots={pages.length > 1}
+              indicatorColor="rgba(232,131,12,0.25)"
+              indicatorActiveColor="#e8830c"
+              circular={false}
+            >
+              {pages.map((page, pi) => (
+                <SwiperItem key={pi}>
+                  <View className="grid grid-cols-2 gap-x-5 gap-y-8 px-5">
+                    {page.map((p) => (
+                      <ProductCard key={p.id} p={p} onTap={() => goProduct(p.id)} />
+                    ))}
+                  </View>
+                </SwiperItem>
               ))}
-            </View>
+            </Swiper>
           </View>
         )
       })}
