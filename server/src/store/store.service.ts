@@ -465,6 +465,7 @@ export class StoreService {
       byOrder.set(it.order_id, arr);
     }
     return orders.map((o: any) => ({
+      id: o.id,
       userKey: o.user_key,
       orderNo: o.order_no,
       receiver: o.receiver,
@@ -540,5 +541,224 @@ export class StoreService {
     const { error } = await this.db().from('products').delete().eq('id', id);
     if (error) throw new Error(`删除失败: ${error.message}`);
     return { id };
+  }
+
+  /* ---------------- 首页装修配置 ---------------- */
+  static DEFAULT_HOME_CONFIG = {
+    brand: 'Chloe Flora',
+    slogan: { title: '于清晨的花影里', subtitle: '做一束被珍视的仪式感' },
+    heroes: [
+      { src: '', tone: 'deep', eyebrow: 'SUMMER 2025 COLLECTION', title: '盛夏花礼', sub: '以爱马仕橙开启高定花艺' },
+      { src: '', tone: 'orange', eyebrow: 'WEDDING & EVENT', title: '婚礼花艺布置', sub: '为重要时刻定制高级仪式感' },
+      { src: '', tone: 'sage', eyebrow: 'EVERLASTING FLOWERS', title: '永生花礼盒', sub: '恒久保存的爱意' },
+    ],
+  };
+
+  async getHomeConfig() {
+    const { data, error } = await this.db()
+      .from('site_config')
+      .select('content, updated_at')
+      .eq('config_key', 'home')
+      .maybeSingle();
+    if (error) throw new Error(`读取首页配置失败: ${error.message}`);
+    if (!data) return { ...StoreService.DEFAULT_HOME_CONFIG };
+    return { ...StoreService.DEFAULT_HOME_CONFIG, ...(data.content as object) };
+  }
+
+  async saveHomeConfig(content: any) {
+    if (!content || typeof content !== 'object') throw new BadRequestException('配置内容不合法');
+    const cfg = {
+      brand: typeof content.brand === 'string' && content.brand.trim() ? content.brand.trim() : 'Chloe Flora',
+      slogan: {
+        title: content?.slogan?.title ?? '',
+        subtitle: content?.slogan?.subtitle ?? '',
+      },
+      heroes: Array.isArray(content.heroes)
+        ? content.heroes
+            .filter((h: any) => h && (h.title || h.eyebrow || h.src))
+            .slice(0, 8)
+            .map((h: any) => ({
+              src: h.src ?? '',
+              tone: ['deep', 'orange', 'sage'].includes(h.tone) ? h.tone : 'deep',
+              eyebrow: h.eyebrow ?? '',
+              title: h.title ?? '',
+              sub: h.sub ?? '',
+            }))
+        : StoreService.DEFAULT_HOME_CONFIG.heroes,
+    };
+    const { data, error } = await this.db()
+      .from('site_config')
+      .upsert({ config_key: 'home', content: cfg, updated_at: new Date().toISOString() })
+      .select('content, updated_at')
+      .single();
+    if (error) throw new Error(`保存首页配置失败: ${error.message}`);
+    return { ...cfg, updatedAt: data?.updated_at };
+  }
+
+  /* ---------------- 客户管理 ---------------- */
+  async listCustomers() {
+    const [u, o, a] = await Promise.all([
+      this.db().from('users').select('id, nickname, avatar, phone, created_at').order('created_at', { ascending: false }).limit(500),
+      this.db().from('orders').select('user_key, total, created_at, status'),
+      this.db().from('addresses').select('user_key'),
+    ]);
+    if (u.error) throw new Error(`查询客户失败: ${u.error.message}`);
+    if (o.error) throw new Error(`查询客户订单失败: ${o.error.message}`);
+    if (a.error) throw new Error(`查询客户地址失败: ${a.error.message}`);
+
+    const stat = new Map<string, { count: number; spent: number; last: string | null; pending: number }>();
+    for (const r of o.data ?? []) {
+      const k = r.user_key as string;
+      const cur = stat.get(k) ?? { count: 0, spent: 0, last: null, pending: 0 };
+      cur.count += 1;
+      cur.spent += toNumber(r.total);
+      if (!cur.last || String(r.created_at) > cur.last) cur.last = r.created_at as string;
+      if (r.status !== 'cancelled' && r.status !== 'completed') cur.pending += 1;
+      stat.set(k, cur);
+    }
+    const addrCount = new Map<string, number>();
+    for (const r of a.data ?? []) {
+      const k = r.user_key as string;
+      addrCount.set(k, (addrCount.get(k) ?? 0) + 1);
+    }
+
+    return (u.data ?? []).map((x: any) => {
+      const s = stat.get(x.id);
+      return {
+        userKey: x.id,
+        nickname: x.nickname ?? 'Chloe Flora 用户',
+        avatar: x.avatar ?? '',
+        phone: x.phone ?? '',
+        addressCount: addrCount.get(x.id) ?? 0,
+        orderCount: s?.count ?? 0,
+        totalSpent: Math.round(s?.spent ?? 0),
+        pendingCount: s?.pending ?? 0,
+        lastOrderAt: s?.last ?? null,
+        joinedAt: x.created_at,
+      };
+    });
+  }
+
+  /* ---------------- 订单状态 ---------------- */
+  static ORDER_FLOW: Record<string, string[]> = {
+    pending: ['confirmed', 'cancelled'],
+    confirmed: ['arranging', 'cancelled'],
+    arranging: ['shipped'],
+    shipped: ['completed'],
+    completed: [],
+    cancelled: [],
+  };
+
+  async updateOrderStatus(id: number, status: string) {
+    if (!status || !(status in StoreService.ORDER_FLOW)) throw new BadRequestException('非法订单状态');
+    const exist = await this.db().from('orders').select('id, status').eq('id', id).maybeSingle();
+    if (exist.error) throw new Error(`查询订单失败: ${exist.error.message}`);
+    if (!exist.data) throw new NotFoundException('订单不存在');
+    const allowed = StoreService.ORDER_FLOW[(exist.data as any).status] ?? [];
+    if (!allowed.includes(status)) throw new BadRequestException(`当前状态不可流转到「${status}」`);
+    const { data, error } = await this.db().from('orders').update({ status }).eq('id', id).select('id, order_no, status').single();
+    if (error) throw new Error(`更新订单状态失败: ${error.message}`);
+    return { id: data?.id, orderNo: data?.order_no, status: data?.status };
+  }
+
+  /* ---------------- 经营看板 ---------------- */
+  async dashboard() {
+    const dayKey = (d: Date) => d.toISOString().slice(0, 10);
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const days: string[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      days.push(dayKey(d));
+    }
+    const rangeStart = days[0];
+
+    const [u, o, oi, prod, cat] = await Promise.all([
+      this.db().from('users').select('id', { count: 'exact', head: true }),
+      this.db().from('orders').select('id, total, status, created_at').order('created_at', { ascending: false }).limit(500),
+      this.db().from('order_items').select('product_id, product_name, qty, product_price'),
+      this.db().from('products').select('id, name, category_id'),
+      this.db().from('categories').select('id, name'),
+    ]);
+    const err = u.error ?? o.error ?? oi.error ?? prod.error ?? cat.error;
+    if (err) throw new Error(`看板统计失败: ${err.message}`);
+
+    const orders = (o.data ?? []) as any[];
+    const valid = orders.filter((x) => x.status !== 'cancelled');
+
+    // 状态分布
+    const statusMap: Record<string, number> = {};
+    for (const x of orders) statusMap[x.status] = (statusMap[x.status] ?? 0) + 1;
+
+    // 近 7 天趋势
+    const trendMap = new Map<string, { orderCount: number; amount: number }>();
+    days.forEach((d) => trendMap.set(d, { orderCount: 0, amount: 0 }));
+    for (const x of valid) {
+      const k = String(x.created_at).slice(0, 10);
+      if (trendMap.has(k)) {
+        const t = trendMap.get(k)!;
+        t.orderCount += 1;
+        t.amount += toNumber(x.total);
+      }
+    }
+    const trend = days.map((d) => ({
+      date: d,
+      orderCount: trendMap.get(d)!.orderCount,
+      amount: Math.round(trendMap.get(d)!.amount),
+    }));
+    const maxAmount = Math.max(1, ...trend.map((t) => t.amount));
+
+    // 今日数据
+    const todayOrders = valid.filter((x) => String(x.created_at) >= todayStart);
+    const todayAmount = Math.round(todayOrders.reduce((s, x) => s + toNumber(x.total), 0));
+    const pendingCount = statusMap['pending'] ?? 0;
+    const totalAmount = Math.round(valid.reduce((s, x) => s + toNumber(x.total), 0));
+
+    // 分类销售
+    const catName = new Map<number, string>((cat.data ?? []).map((c: any) => [c.id, c.name]));
+    const prodCat = new Map<number, number>((prod.data ?? []).map((p: any) => [p.id, p.category_id]));
+    const catStat = new Map<string, { qty: number; amount: number }>();
+    const prodStat = new Map<number, { name: string; qty: number; amount: number }>();
+    for (const it of oi.data ?? []) {
+      const qty = Number(it.qty) || 0;
+      const amt = toNumber(it.product_price) * qty;
+      const cid = prodCat.get(it.product_id);
+      if (cid != null) {
+        const cn = catName.get(cid) ?? '未分类';
+        const c = catStat.get(cn) ?? { qty: 0, amount: 0 };
+        c.qty += qty;
+        c.amount += amt;
+        catStat.set(cn, c);
+      }
+      const p = prodStat.get(it.product_id) ?? { name: it.product_name, qty: 0, amount: 0 };
+      p.qty += qty;
+      p.amount += amt;
+      prodStat.set(it.product_id, p);
+    }
+    const categorySales = [...catStat.entries()]
+      .map(([name, v]) => ({ name, qty: v.qty, amount: Math.round(v.amount) }))
+      .sort((a, b) => b.amount - a.amount);
+    const maxCatAmount = Math.max(1, ...categorySales.map((c) => c.amount));
+    const topProducts = [...prodStat.values()]
+      .map((v) => ({ name: v.name, qty: v.qty, amount: Math.round(v.amount) }))
+      .sort((a, b) => b.qty - a.qty)
+      .slice(0, 8);
+
+    return {
+      kpis: {
+        customerCount: u.count ?? 0,
+        orderCount: orders.length,
+        pendingCount,
+        totalAmount,
+        todayOrderCount: todayOrders.length,
+        todayAmount,
+      },
+      statusDist: Object.entries(statusMap).map(([status, count]) => ({ status, count })),
+      trend,
+      maxAmount,
+      categorySales,
+      maxCatAmount,
+      topProducts,
+    };
   }
 }

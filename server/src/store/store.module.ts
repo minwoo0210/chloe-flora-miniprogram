@@ -6,9 +6,10 @@ import { AddressController } from '@/store/address.controller';
 import { CartController } from '@/store/cart.controller';
 import { OrderController } from '@/store/order.controller';
 import { AdminController } from '@/store/admin.controller';
+import { SiteController } from '@/store/site.controller';
 
 @Module({
-  controllers: [CatalogController, AuthController, AddressController, CartController, OrderController, AdminController],
+  controllers: [CatalogController, AuthController, AddressController, CartController, OrderController, AdminController, SiteController],
   providers: [StoreService],
   exports: [StoreService],
 })

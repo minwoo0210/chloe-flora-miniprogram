@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { View, Text, Swiper, SwiperItem, Image } from '@tarojs/components'
 import Taro, { usePageScroll } from '@tarojs/taro'
 import { Flower, ChevronRight, ChevronDown } from 'lucide-react-taro'
 import ProductImage from '@/components/product-image'
 import ProductCard from '@/components/product-card'
+import { Network } from '@/network'
 import { CATEGORIES, PRODUCTS, SERVICES, SLOGAN, HERO, type Product, formatPrice } from '@/data/catalog'
 
 
@@ -37,7 +38,23 @@ const headerHeight = statusBarHeight + HEADER_BODY
 const IndexPage = () => {
   // 是否已经滚出首屏海报：越过海报后顶部栏才浮出米白背景
   const [scrolled, setScrolled] = useState(false)
+  // 后台可配置的首页内容：默认回落静态数据，接口成功后覆盖
+  const [brand, setBrand] = useState('Chloe Flora')
+  const [slogan, setSlogan] = useState(SLOGAN)
+  const [heroes, setHeroes] = useState(HERO)
   const heroHeight = sysInfo.windowHeight
+
+  useEffect(() => {
+    Network.request({ url: '/api/site/home' })
+      .then((res: any) => {
+        const cfg = res?.data?.data
+        if (!cfg) return
+        if (cfg.brand) setBrand(cfg.brand)
+        if (cfg.slogan) setSlogan({ title: cfg.slogan.title || SLOGAN.title, subtitle: cfg.slogan.subtitle || SLOGAN.subtitle })
+        if (Array.isArray(cfg.heroes) && cfg.heroes.length) setHeroes(cfg.heroes)
+      })
+      .catch(() => { /* 静默回落静态首页，避免白屏 */ })
+  }, [])
 
   usePageScroll((e) => {
     // 海报底部 ⇒ 顶部导航完全落在米白内容区时切换
@@ -67,7 +84,7 @@ const IndexPage = () => {
             className="mt-1 text-base font-medium tracking-[0.18em] text-center"
             style={{ color: scrolled ? '#33302b' : '#ffffff' }}
           >
-            Chloe Flora
+            {brand}
           </Text>
         </View>
       </View>
@@ -84,7 +101,9 @@ const IndexPage = () => {
           indicatorColor="rgba(255,255,255,0.35)"
           indicatorActiveColor="#e8830c"
         >
-          {HERO.map((h, i) => (
+          {heroes.map((h0, i) => {
+            const h = { ...h0, tone: HERO_TONE[h0.tone] ? h0.tone : 'deep' }
+            return (
             <SwiperItem key={i}>
               {h.src ? (
                 <Image className="w-full h-full" src={h.src} mode="aspectFill" />
@@ -116,14 +135,15 @@ const IndexPage = () => {
                     className="block mt-5 text-sm leading-7 tracking-wider text-center"
                     style={{ color: HERO_TONE[h.tone].fg, opacity: 0.78 }}
                   >
-                    {SLOGAN.title}
+                    {slogan.title}
                     {'\n'}
-                    {SLOGAN.subtitle}
+                    {slogan.subtitle}
                   </Text>
                 </View>
               )}
             </SwiperItem>
-          ))}
+            )
+          })}
         </Swiper>
 
         {/* 底部向下探索提示 */}

@@ -153,3 +153,10 @@ export const order_items = pgTable(
   },
   (table) => [index("order_items_order_id_idx").on(table.order_id)]
 );
+
+// 站点 / 首页装修配置（单行 key='home'，content 为 JSONB）
+export const site_config = pgTable("site_config", {
+  config_key: varchar("config_key", { length: 32 }).primaryKey(),
+  content: jsonb("content").notNull(),
+  updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
+});
