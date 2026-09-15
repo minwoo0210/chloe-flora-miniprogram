@@ -15,20 +15,22 @@ export default function ProductCard({ p, onTap }: ProductCardProps) {
   return (
     <View className="flex flex-col" onClick={onTap}>
       <ProductImage name={p.name} hint={p.imageHint} className="w-full aspect-[3/4]" />
-      {p.tags.length ? (
-        <View className="mt-2">
-          <Badge variant="outline" className="px-2 py-1 rounded-sm border-border bg-white">
-            <Text className="block text-xs leading-none text-foreground">{p.tags[0]}</Text>
-          </Badge>
-        </View>
-      ) : null}
-      <Text className="block mt-2 text-sm font-medium text-foreground leading-snug line-clamp-1">
+      <Text className="block mt-2 text-base font-medium text-foreground leading-snug line-clamp-1">
         {p.name}
       </Text>
+      {p.tags.length ? (
+        <View className="mt-1 flex flex-row items-center gap-1">
+          {p.tags.slice(0, 2).map((t) => (
+            <Badge key={t} variant="outline" className="px-1 py-0 rounded-sm border-border bg-white">
+              <Text className="block text-xs leading-none text-muted-foreground">{t}</Text>
+            </Badge>
+          ))}
+        </View>
+      ) : null}
       <Text className="block mt-1 text-xs text-muted-foreground line-clamp-1">
         {p.subtitle}
       </Text>
-      <View className="flex items-baseline gap-2 mt-2">
+      <View className="flex items-baseline gap-2 mt-1">
         <Text className="text-base font-semibold text-foreground">¥{formatPrice(p.price)}</Text>
         {p.originalPrice ? (
           <Text className="text-xs text-muted-foreground line-through">
