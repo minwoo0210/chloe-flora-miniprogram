@@ -218,7 +218,7 @@ const IndexPage = () => {
             {/* 2×2 分页商品网格：每页 4 个，可左右翻页；左右照片贴边，中间留 10px */}
             <Swiper
               className="mt-6"
-              style={{ height: `${Math.round((sysInfo.windowWidth - 10) / 2 + 100) * 2 + 32}px` }}
+              style={{ height: `${Math.round((sysInfo.windowWidth - 5) / 2 + 100) * 2 + 32}px` }}
               indicatorDots={pages.length > 1}
               indicatorColor="rgba(232,131,12,0.25)"
               indicatorActiveColor="#e8830c"
@@ -234,7 +234,7 @@ const IndexPage = () => {
                         <View
                           key={ri}
                           className={ri < rows - 1 ? 'mb-8' : ''}
-                          style={{ display: 'flex', flexDirection: 'row', columnGap: 10 }}
+                          style={{ display: 'flex', flexDirection: 'row', columnGap: 5 }}
                         >
                           {row.map((p) => (
                             <View key={p.id} style={{ flex: 1, minWidth: 0 }}>

@@ -16,8 +16,7 @@ export default function ProductCard({ p, onTap }: ProductCardProps) {
     <View className="flex flex-col" onClick={onTap}>
       <ProductImage name={p.name} hint={p.imageHint} className="w-full aspect-square" />
       <View className="mt-2 flex flex-row items-center">
-        <Text className="flex-1 text-base font-normal text-foreground leading-snug line-clamp-1">
-          {'  '}
+        <Text className="flex-1 text-base font-normal text-foreground leading-snug line-clamp-1" style={{ paddingLeft: 10 }}>
           {p.name}
         </Text>
         {p.tags.length ? (
@@ -30,13 +29,11 @@ export default function ProductCard({ p, onTap }: ProductCardProps) {
           </View>
         ) : null}
       </View>
-      <Text className="block mt-1 text-xs font-light text-muted-foreground line-clamp-1">
-        {'  '}
+      <Text className="block mt-1 text-xs font-light text-muted-foreground line-clamp-1" style={{ paddingLeft: 10 }}>
         {p.subtitle}
       </Text>
       <View className="flex items-baseline gap-2 mt-1">
-        <Text className="text-base font-medium text-foreground">
-          {'  '}
+        <Text className="text-base font-medium text-foreground" style={{ paddingLeft: 10 }}>
           ¥{formatPrice(p.price)}
         </Text>
         {p.originalPrice ? (
