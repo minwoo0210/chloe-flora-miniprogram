@@ -14,9 +14,10 @@ interface ProductCardProps {
 export default function ProductCard({ p, onTap }: ProductCardProps) {
   return (
     <View className="flex flex-col" onClick={onTap}>
-      <ProductImage name={p.name} hint={p.imageHint} className="w-full aspect-[3/4]" />
+      <ProductImage name={p.name} hint={p.imageHint} className="w-full aspect-square" />
       <View className="mt-2 flex flex-row items-center">
-        <Text className="flex-1 text-base font-medium text-foreground leading-snug line-clamp-1">
+        <Text className="flex-1 text-base font-normal text-foreground leading-snug line-clamp-1">
+          {' '}
           {p.name}
         </Text>
         {p.tags.length ? (
@@ -29,11 +30,15 @@ export default function ProductCard({ p, onTap }: ProductCardProps) {
           </View>
         ) : null}
       </View>
-      <Text className="block mt-1 text-xs text-muted-foreground line-clamp-1">
+      <Text className="block mt-1 text-xs font-light text-muted-foreground line-clamp-1">
+        {' '}
         {p.subtitle}
       </Text>
       <View className="flex items-baseline gap-2 mt-1">
-        <Text className="text-base font-semibold text-foreground">¥{formatPrice(p.price)}</Text>
+        <Text className="text-base font-medium text-foreground">
+          {' '}
+          ¥{formatPrice(p.price)}
+        </Text>
         {p.originalPrice ? (
           <Text className="text-xs text-muted-foreground line-through">
             ¥{formatPrice(p.originalPrice)}
