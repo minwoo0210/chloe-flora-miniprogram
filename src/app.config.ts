@@ -14,15 +14,15 @@ export default defineAppConfig({
   ],
   window: {
     backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#f7f3ed',
+    navigationBarBackgroundColor: '#f6f1eb',
     navigationBarTitleText: 'Chloe Flora',
     navigationBarTextStyle: 'black',
-    backgroundColor: '#f7f3ed'
+    backgroundColor: '#f6f1eb'
   },
   tabBar: {
     color: '#8f8a82',
     selectedColor: '#e8830c',
-    backgroundColor: '#f7f3ed',
+    backgroundColor: '#f6f1eb',
     borderStyle: 'white',
     list: [
       {

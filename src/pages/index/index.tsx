@@ -73,7 +73,7 @@ const IndexPage = () => {
           top: 0,
           zIndex: 50,
           paddingTop: `${statusBarHeight}px`,
-          backgroundColor: scrolled ? '#f7f3ed' : 'transparent',
+          backgroundColor: scrolled ? '#f6f1eb' : 'transparent',
           boxShadow: scrolled ? '0 1px 0 rgba(160,153,141,0.18)' : 'none',
           transition: 'background-color 0.3s ease'
         }}

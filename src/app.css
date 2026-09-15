@@ -11,7 +11,7 @@ page {
 :root,
 page,
 root-portal {
-  --background: #f7f3ed;
+  --background: #f6f1eb;
   --foreground: #33302b;
   --card: #ffffff;
   --card-foreground: #33302b;
@@ -38,7 +38,7 @@ root-portal {
   --sidebar-accent-foreground: #2b2118;
   --sidebar-border: #e9dfce;
   --sidebar-ring: #c9a063;
-  --surface: #f7f3ed;
+  --surface: #f6f1eb;
   --code: var(--surface);
   --code-highlight: lab(95.36% 0 0);
   --code-number: lab(48.96% 0 0);
