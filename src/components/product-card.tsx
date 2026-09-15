@@ -15,18 +15,20 @@ export default function ProductCard({ p, onTap }: ProductCardProps) {
   return (
     <View className="flex flex-col" onClick={onTap}>
       <ProductImage name={p.name} hint={p.imageHint} className="w-full aspect-[3/4]" />
-      <Text className="block mt-2 text-base font-medium text-foreground leading-snug line-clamp-1">
-        {p.name}
-      </Text>
-      {p.tags.length ? (
-        <View className="mt-1 flex flex-row items-center gap-1">
-          {p.tags.slice(0, 2).map((t) => (
-            <Badge key={t} variant="outline" className="px-1 py-0 rounded-sm border-border bg-white">
-              <Text className="block text-xs leading-none text-muted-foreground">{t}</Text>
-            </Badge>
-          ))}
-        </View>
-      ) : null}
+      <View className="mt-2 flex flex-row items-center">
+        <Text className="flex-1 text-base font-medium text-foreground leading-snug line-clamp-1">
+          {p.name}
+        </Text>
+        {p.tags.length ? (
+          <View className="flex flex-row items-center gap-1 shrink-0 ml-1">
+            {p.tags.slice(0, 2).map((t) => (
+              <Badge key={t} variant="outline" className="px-1 py-0 rounded-sm border-border bg-white">
+                <Text className="block text-xs leading-none text-muted-foreground">{t}</Text>
+              </Badge>
+            ))}
+          </View>
+        ) : null}
+      </View>
       <Text className="block mt-1 text-xs text-muted-foreground line-clamp-1">
         {p.subtitle}
       </Text>
