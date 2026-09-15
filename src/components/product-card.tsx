@@ -16,7 +16,14 @@ export default function ProductCard({ p, onTap }: ProductCardProps) {
     <View className="flex flex-col" onClick={onTap}>
       <ProductImage name={p.name} hint={p.imageHint} className="w-full aspect-square" />
       <View className="mt-2 flex flex-row items-center">
-        <Text className="flex-1 text-base font-normal text-foreground leading-snug line-clamp-1" style={{ paddingLeft: 10 }}>
+        <Text
+          className="flex-1 text-base font-normal text-foreground leading-snug line-clamp-1"
+          style={{
+            paddingLeft: 10,
+            fontFamily: '"Microsoft YaHei Light","Microsoft YaHei",sans-serif',
+            fontWeight: 300
+          }}
+        >
           {p.name}
         </Text>
         {p.tags.length ? (
