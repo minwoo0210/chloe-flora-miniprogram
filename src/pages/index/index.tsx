@@ -215,24 +215,38 @@ const IndexPage = () => {
               </View>
             </View>
 
-            {/* 2×2 分页商品网格：每页 4 个，可左右翻页 */}
+            {/* 2×2 分页商品网格：每页 4 个，可左右翻页；左右照片贴边，中间留 10px */}
             <Swiper
               className="mt-6"
-              style={{ height: `${Math.round(((sysInfo.windowWidth - 60) / 2) * 1.3333 + 100) * 2 + 32}px` }}
+              style={{ height: `${Math.round(((sysInfo.windowWidth - 10) / 2) * 1.3333 + 100) * 2 + 32}px` }}
               indicatorDots={pages.length > 1}
               indicatorColor="rgba(232,131,12,0.25)"
               indicatorActiveColor="#e8830c"
               circular={false}
             >
-              {pages.map((page, pi) => (
-                <SwiperItem key={pi}>
-                  <View className="grid grid-cols-2 gap-x-5 gap-y-8 px-5">
-                    {page.map((p) => (
-                      <ProductCard key={p.id} p={p} onTap={() => goProduct(p.id)} />
-                    ))}
-                  </View>
-                </SwiperItem>
-              ))}
+              {pages.map((page, pi) => {
+                const rows = Math.ceil(page.length / 2)
+                return (
+                  <SwiperItem key={pi}>
+                    {Array.from({ length: rows }).map((_, ri) => {
+                      const row = page.slice(ri * 2, ri * 2 + 2)
+                      return (
+                        <View
+                          key={ri}
+                          className={ri < rows - 1 ? 'mb-8' : ''}
+                          style={{ display: 'flex', flexDirection: 'row', columnGap: 10 }}
+                        >
+                          {row.map((p) => (
+                            <View key={p.id} style={{ flex: 1, minWidth: 0 }}>
+                              <ProductCard p={p} onTap={() => goProduct(p.id)} />
+                            </View>
+                          ))}
+                        </View>
+                      )
+                    })}
+                  </SwiperItem>
+                )
+              })}
             </Swiper>
           </View>
         )
