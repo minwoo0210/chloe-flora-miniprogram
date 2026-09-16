@@ -149,7 +149,7 @@ const MyPage = () => {
             Chloe Flora
           </Text>
           <Text className="block mt-1 text-xs text-muted-foreground">
-            FLORIST · BOUTIQUE · EST. 2016
+            高端花艺工作室 · FLORIST BOUTIQUE
           </Text>
         </View>
       </View>
