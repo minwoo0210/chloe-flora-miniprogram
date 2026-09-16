@@ -48,4 +48,3 @@ validate_win = [
 [deploy]
 build = [ "bash", ".cozeproj/scripts/deploy_build.sh" ]
 run = [ "bash", ".cozeproj/scripts/deploy_run.sh" ]
-deps = [ "git", "rsync" ]
