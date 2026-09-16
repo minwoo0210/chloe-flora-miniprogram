@@ -1,11 +1,12 @@
 import { View, Text, Swiper, SwiperItem } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowLeft, Flower, Minus, Plus } from 'lucide-react-taro'
 import { Button } from '@/components/ui/button'
 import ProductImage from '@/components/product-image'
 import ProductCard from '@/components/product-card'
-import { PRODUCTS, formatPrice } from '@/data/catalog'
+import { formatPrice, type Product } from '@/data/catalog'
+import { loadCatalog } from '@/api'
 import { useStore } from '@/store/use-store'
 import { cn } from '@/lib/utils'
 
@@ -16,12 +17,33 @@ const PERKS = ['免费配送', '可定制贺卡', '花期无忧养护']
 const ProductPage = () => {
   const router = useRouter()
   const id = router.params?.id || ''
-  const p = PRODUCTS.find((x) => x.id === id)
   const addToCart = useStore((s) => s.addToCart)
 
   const [spec, setSpec] = useState(SPECS[0])
   const [qty, setQty] = useState(1)
+  // undefined = 加载中；共享库商品（UUID id）
+  const [p, setP] = useState<Product | null | undefined>(undefined)
+  const [related, setRelated] = useState<Product[]>([])
 
+  useEffect(() => {
+    loadCatalog()
+      .then((cat) => {
+        const found = cat.products.find((x) => x.id === id) || null
+        setP(found)
+        if (found) {
+          setRelated(cat.products.filter((x) => x.categoryId === found?.categoryId && x.id !== found.id).slice(0, 2))
+        }
+      })
+      .catch(() => setP(null))
+  }, [id])
+
+  if (p === undefined) {
+    return (
+      <View className="min-h-full bg-background flex items-center justify-center">
+        <Text className="block text-sm text-muted-foreground">正在加载…</Text>
+      </View>
+    )
+  }
   if (!p) {
     return (
       <View className="min-h-full bg-background flex items-center justify-center">
@@ -29,8 +51,6 @@ const ProductPage = () => {
       </View>
     )
   }
-
-  const related = PRODUCTS.filter((x) => x.categoryId === p.categoryId && x.id !== p.id).slice(0, 2)
 
   const toast = (msg: string) => Taro.showToast({ title: msg, icon: 'none' })
   const goBack = () => Taro.navigateBack()

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { StoreService } from '@/store/store.service';
 
 @Controller('catalog')
@@ -11,13 +11,22 @@ export class CatalogController {
   }
 
   @Get('products')
-  async products(@Query('categoryId') categoryId?: string) {
-    const id = categoryId ? Number(categoryId) : undefined;
-    return { status: 'success', data: await this.store.listProducts(id) };
+  async products(@Query('categorySlug') categorySlug?: string) {
+    return { status: 'success', data: await this.store.listProducts(categorySlug) };
   }
 
   @Get('products/:id')
-  async product(@Param('id', ParseIntPipe) id: number) {
+  async product(@Param('id') id: string) {
     return { status: 'success', data: await this.store.getProduct(id) };
+  }
+
+  @Get('home')
+  async home() {
+    return { status: 'success', data: await this.store.getHome() };
+  }
+
+  @Get('theme')
+  async theme() {
+    return { status: 'success', data: await this.store.getTheme() };
   }
 }

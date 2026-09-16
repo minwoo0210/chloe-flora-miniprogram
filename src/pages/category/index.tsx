@@ -1,37 +1,47 @@
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Flower } from 'lucide-react-taro'
 import ProductImage from '@/components/product-image'
 import ProductCard from '@/components/product-card'
-import { CATEGORIES, PRODUCTS } from '@/data/catalog'
+import { loadCatalog } from '@/api'
 import { cn } from '@/lib/utils'
+import type { Product } from '@/data/catalog'
 
-const TABS = [{ id: 'all', name: '全部' }, ...CATEGORIES]
 const TAGS = ['精选', '热卖', '新品']
 
 const goProduct = (id: string) =>
   Taro.navigateTo({ url: `/pages/product/index?id=${id}` })
 
 const CATEGORY_NOTE: Record<string, string> = {
-  fresh: '每日鲜切 · 手作花束',
-  preserved: '见微知著 · 久存美好',
-  basket: '礼仪款呈 · 庆贺之选',
-  plant: '一隅绿意 · 自然共生',
-  event: '空间叙事 · 场景定制'
+  'fresh-bouquet': '每日鲜切 · 手作花束',
+  'preserved-flower': '见微知著 · 久存美好',
+  'flower-basket': '礼仪款呈 · 庆贺之选',
+  'green-plant': '一隅绿意 · 自然共生',
+  wedding: '一生一诺 · 誓约见证',
+  commercial: '场景定制 · 空间叙事'
 }
 
 const CategoryPage = () => {
   const router = useRouter()
   const [active, setActive] = useState<string>(router.params?.id || 'all')
   const [tag, setTag] = useState<string>('')
+  const [categories, setCategories] = useState<any[]>([])
+  const [products, setProducts] = useState<Product[]>([])
 
-  const list = PRODUCTS.filter(
+  useEffect(() => {
+    loadCatalog().then((cat) => {
+      if (cat.categories.length) setCategories(cat.categories)
+      if (cat.products.length) setProducts(cat.products)
+    })
+  }, [])
+
+  const TABS = [{ id: 'all', name: '全部' }, ...categories]
+  const list = products.filter(
     (p) =>
       (active === 'all' || p.categoryId === active) && (!tag || p.tags.includes(tag))
   )
-
-  const activeCat = CATEGORIES.find((c) => c.id === active)
+  const activeCat = categories.find((c) => c.id === active)
 
   return (
     <View className="min-h-full bg-background flex flex-col">
@@ -83,7 +93,7 @@ const CategoryPage = () => {
         {/* 子分类/标签筛选 */}
         <View className="flex items-center justify-between px-5 mt-6">
           <Text className="block text-xs text-muted-foreground tracking-[0.2em]">
-            {activeCat ? CATEGORY_NOTE[activeCat.id] : 'Chloe Flora · 花礼陈列'}
+            {activeCat ? (CATEGORY_NOTE[activeCat.id] || '甄选花礼') : 'Chloe Flora · 花礼陈列'}
           </Text>
           <Text className="block text-xs text-muted-foreground">共 {list.length} 件</Text>
         </View>

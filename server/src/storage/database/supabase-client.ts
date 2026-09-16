@@ -10,14 +10,14 @@ interface SupabaseCredentials {
 }
 
 function loadEnv(): void {
-  if (envLoaded || (process.env.COZE_SUPABASE_URL && process.env.COZE_SUPABASE_ANON_KEY)) {
+  if (envLoaded || (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY)) {
     return;
   }
 
   try {
     try {
       require('dotenv').config();
-      if (process.env.COZE_SUPABASE_URL && process.env.COZE_SUPABASE_ANON_KEY) {
+      if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
         envLoaded = true;
         return;
       }
@@ -71,34 +71,25 @@ except Exception as e:
 function getSupabaseCredentials(): SupabaseCredentials {
   loadEnv();
 
-  const url = process.env.COZE_SUPABASE_URL;
-  const anonKey = process.env.COZE_SUPABASE_ANON_KEY;
+  const url = process.env.SUPABASE_URL;
+  const anonKey = process.env.SUPABASE_ANON_KEY;
 
   if (!url) {
-    throw new Error('COZE_SUPABASE_URL is not set');
+    throw new Error('SUPABASE_URL is not set');
   }
   if (!anonKey) {
-    throw new Error('COZE_SUPABASE_ANON_KEY is not set');
+    throw new Error('SUPABASE_ANON_KEY is not set');
   }
 
   return { url, anonKey };
 }
 
-function getSupabaseServiceRoleKey(): string | undefined {
-  loadEnv();
-  return process.env.COZE_SUPABASE_SERVICE_ROLE_KEY;
-}
-
+// NOTE: 与 Chloe Flora 后台共享库交互时，遵循 RLS——始终只使用 anon key。
+// 禁止使用 SERVICE_ROLE_KEY（只能读已启用数据、只能 INSERT 订单等）。
 function getSupabaseClient(token?: string): SupabaseClient {
   const { url, anonKey } = getSupabaseCredentials();
 
-  let key: string;
-  if (token) {
-    key = anonKey;
-  } else {
-    const serviceRoleKey = getSupabaseServiceRoleKey();
-    key = serviceRoleKey ?? anonKey;
-  }
+  const key = anonKey;
 
   const globalOptions: Record<string, any> = {};
   if (token) {
@@ -125,4 +116,4 @@ function getSupabaseClient(token?: string): SupabaseClient {
   });
 }
 
-export { loadEnv, getSupabaseCredentials, getSupabaseServiceRoleKey, getSupabaseClient };
+export { loadEnv, getSupabaseCredentials, getSupabaseClient };

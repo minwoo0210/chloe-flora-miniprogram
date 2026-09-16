@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import ProductImage from '@/components/product-image'
 import { formatPrice } from '@/data/catalog'
 import { useStore } from '@/store/use-store'
+import { createOrder, getDeviceId } from '@/api'
 
 const CheckoutPage = () => {
   const detail = useStore((s) => s.cartDetail())
@@ -51,6 +52,24 @@ const CheckoutPage = () => {
       remark: remark.trim(),
       itemIds: detail.map((d) => d.productId)
     })
+
+    // 同步写入共享库（Chloe Flora 后台同一数据库）。当前库未放开 anon INSERT 策略时静默失败，
+    // 本地订单单始终保留，功能不受影响；RLS 放开后订单将同时出现在后台与小程序。
+    createOrder({
+      openid: getDeviceId(),
+      customerName: name.trim(),
+      customerPhone: phone.trim(),
+      customerAddress: address.trim(),
+      remark: remark.trim(),
+      deliveryFee: 0,
+      items: detail.map((x) => ({
+        productId: x.productId,
+        name: x.product?.name ?? '',
+        price: x.product?.price ?? 0,
+        quantity: x.qty,
+        imageKey: x.product?.imageHint?.startsWith('http') ? x.product.imageHint : ''
+      }))
+    }).catch(() => { /* RLS 未放开写入时静默 */ })
     Taro.showToast({ title: '下单成功', icon: 'success' })
     Taro.redirectTo({ url: '/pages/orders/index?status=paid' })
   }

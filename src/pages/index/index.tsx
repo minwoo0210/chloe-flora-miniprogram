@@ -4,12 +4,15 @@ import Taro, { usePageScroll } from '@tarojs/taro'
 import { Flower, ChevronRight, ChevronDown } from 'lucide-react-taro'
 import ProductImage from '@/components/product-image'
 import ProductCard from '@/components/product-card'
-import { Network } from '@/network'
-import { CATEGORIES, PRODUCTS, SERVICES, SLOGAN, HERO, type Product, formatPrice } from '@/data/catalog'
+import { SERVICES, SLOGAN, HERO, type HeroSlide, type Product, formatPrice } from '@/data/catalog'
+import { loadCatalog, getHome, getTheme } from '@/api'
 
 
 const goTab = (url: string) => Taro.switchTab({ url })
 const goProduct = (id: string) => Taro.navigateTo({ url: `/pages/product/index?id=${id}` })
+
+/** 品类主题文案（避免 JSX 内直接书写引号触发 lint） */
+const catNote = (id: string) => (CATEGORY_NOTE[id] ? CATEGORY_NOTE[id] : '甄选花礼')
 
 /** Hero 大图轮播的品牌色调 */
 const HERO_TONE: Record<string, { bg: string; fg: string; glyph: string }> = {
@@ -20,11 +23,12 @@ const HERO_TONE: Record<string, { bg: string; fg: string; glyph: string }> = {
 
 /** 品类主题视觉底稿：文案 + 暖色品牌意象 */
 const CATEGORY_NOTE: Record<string, string> = {
-  fresh: '每日鲜切 · 手作花束',
-  preserved: '见微知著 · 久存美好',
-  basket: '礼仪款呈 · 庆贺之选',
-  plant: '一隅绿意 · 自然共生',
-  event: '空间叙事 · 场景定制'
+  'fresh-bouquet': '每日鲜切 · 手作花束',
+  'preserved-flower': '见微知著 · 久存美好',
+  'flower-basket': '礼仪款呈 · 庆贺之选',
+  'green-plant': '一隅绿意 · 自然共生',
+  wedding: '一生一诺 · 誓约见证',
+  commercial: '场景定制 · 空间叙事'
 }
 
 /** 顶部自定义导航高度（含状态栏）与小程序端右侧安全留白 */
@@ -35,23 +39,44 @@ const isMini = env === Taro.ENV_TYPE.WEAPP || env === Taro.ENV_TYPE.TT
 const HEADER_BODY = 44
 const headerHeight = statusBarHeight + HEADER_BODY
 
+/** 将共享库 site_settings.theme 动态应用到全局配色（H5 预览端直接将变量写到根节点） */
+function applyThemeVars(t: any) {
+  if (typeof document !== 'undefined' && document.documentElement?.style) {
+    const r = document.documentElement.style
+    if (t.primary) r.setProperty('--primary', t.primary)
+    if (t.background) r.setProperty('--background', t.background)
+    if (t.textPrimary) r.setProperty('--foreground', t.textPrimary)
+    if (t.textTertiary) r.setProperty('--muted-foreground', t.textTertiary)
+  }
+}
+
 const IndexPage = () => {
   // 是否已经滚出首屏海报：越过海报后顶部栏才浮出米白背景
   const [scrolled, setScrolled] = useState(false)
-  // 后台可配置的首页内容：默认回落静态数据，接口成功后覆盖
-  const [brand, setBrand] = useState('Chloe Flora')
-  const [slogan, setSlogan] = useState(SLOGAN)
+  // 共享库（Chloe Flora 后台同一 Supabase）提供的首页内容：接口成功后覆盖，失败回落静态
+  const [brand] = useState('Chloe Flora')
+  const [slogan] = useState(SLOGAN)
   const [heroes, setHeroes] = useState(HERO)
+  const [categories, setCategories] = useState<any[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const heroHeight = sysInfo.windowHeight
 
   useEffect(() => {
-    Network.request({ url: '/api/site/home' })
-      .then((res: any) => {
-        const cfg = res?.data?.data
-        if (!cfg) return
-        if (cfg.brand) setBrand(cfg.brand)
-        if (cfg.slogan) setSlogan({ title: cfg.slogan.title || SLOGAN.title, subtitle: cfg.slogan.subtitle || SLOGAN.subtitle })
-        if (Array.isArray(cfg.heroes) && cfg.heroes.length) setHeroes(cfg.heroes)
+    Promise.all([
+      loadCatalog(),
+      getHome().catch(() => ({ banners: [], sections: [], hot: [] })),
+      getTheme().catch(() => null)
+    ])
+      .then(([cat, home, theme]) => {
+        if (cat.categories.length) setCategories(cat.categories)
+        if (cat.products.length) setProducts(cat.products)
+        if (home.banners.length) {
+          setHeroes(home.banners.map((b) => {
+            const slide: HeroSlide = { src: b.imageKey || '', tone: 'deep', eyebrow: '', title: b.title || '', sub: '' }
+            return slide
+          }))
+        }
+        if (theme) applyThemeVars(theme)
       })
       .catch(() => { /* 静默回落静态首页，避免白屏 */ })
   }, [])
@@ -154,8 +179,8 @@ const IndexPage = () => {
       </View>
 
       {/* ============ 各品类主题宣传区 ⇒ 商品网格（海报结束后开始呈现米白背景） ============ */}
-      {CATEGORIES.map((c) => {
-        const items = PRODUCTS.filter((p) => p.categoryId === c.id)
+      {categories.map((c) => {
+        const items = products.filter((p) => p.categoryId === c.id)
         if (!items.length) return null
         const featured = items[0]
         const rest = items.slice(1, 9)
@@ -166,7 +191,7 @@ const IndexPage = () => {
             <View className="flex items-end justify-between px-5">
               <View>
                 <Text className="block text-xs text-muted-foreground tracking-[0.3em]">
-                  {CATEGORY_NOTE[c.id]}
+                  {catNote(c.id)}
                 </Text>
                 <Text className="block mt-1 text-2xl font-semibold text-foreground tracking-wide">
                   {c.name}
@@ -197,7 +222,7 @@ const IndexPage = () => {
                 }}
               >
                 <Text className="block text-xs tracking-[0.3em] text-white opacity-80">
-                  {CATEGORY_NOTE[c.id]} · 主推
+                  {catNote(c.id)} · 主推
                 </Text>
                 <Text className="block mt-2 text-xl font-medium text-white tracking-wide">
                   {featured.name}

@@ -7,19 +7,21 @@ export class OrderController {
 
   @Post()
   async create(@Body() body: any) {
-    const userKey = body.userKey ?? 'guest';
-    const data = await this.store.createOrder(userKey, {
-      receiver: body.receiver,
-      phone: body.phone,
-      address: body.address,
+    const data = await this.store.createOrder({
+      openid: body.openid || 'guest',
+      nickname: body.nickname,
+      customerName: body.customerName,
+      customerPhone: body.customerPhone,
+      customerAddress: body.customerAddress,
       remark: body.remark,
+      deliveryFee: body.deliveryFee,
       items: body.items,
     });
     return { status: 'success', data };
   }
 
-  @Get()
-  async list(@Query('userKey') userKey: string) {
-    return { status: 'success', data: await this.store.listOrders(userKey ?? 'guest') };
+  @Get('my')
+  async my(@Query('openid') openid: string) {
+    return { status: 'success', data: await this.store.listMyOrders(openid) };
   }
 }
